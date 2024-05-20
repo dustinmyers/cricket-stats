@@ -1,4 +1,6 @@
+import Pagination from "@/components/Pagination";
 import Image from "next/image";
+import Link from "next/link";
 
 type Score = {
   r: number;
@@ -50,7 +52,11 @@ interface MatchesData {
   info: MatchInfo;
 }
 
-async function getMatchesData(offset: number): Promise<MatchesData> {
+type SearchParams = {
+  offset: string;
+};
+
+async function getMatchesData(offset: string): Promise<MatchesData> {
   const res = await fetch(
     `https://api.cricapi.com/v1/matches?apikey=${process.env.NEXT_PUBLIC_CRICKET_API_KEY}&offset=${offset}`
   );
@@ -62,8 +68,8 @@ async function getMatchesData(offset: number): Promise<MatchesData> {
   return res.json();
 }
 
-const Matches: React.FC = async (props) => {
-  const { data: matches, info } = await getMatchesData(0);
+const Matches = async ({ searchParams }: { searchParams: SearchParams }) => {
+  const { data: matches, info } = await getMatchesData(searchParams.offset);
 
   return (
     <section className="flex flex-col gap-10 p-20">
@@ -106,6 +112,11 @@ const Matches: React.FC = async (props) => {
           </div>
         ))}
       </div>
+      <Pagination
+        totalRows={info.totalRows}
+        offset={info.offsetRows}
+        route="matches"
+      />
     </section>
   );
 };
